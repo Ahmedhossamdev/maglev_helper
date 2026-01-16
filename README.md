@@ -71,21 +71,6 @@ The app will be available at `http://localhost:5173`
 
 5. **View Differences**: Side-by-side comparison with color-coded differences
 
-## Supported Endpoints
-
-- Trip Details
-- Stops for Route
-- Arrivals and Departures for Stop
-- Stop Info
-- Route Info
-- Routes for Agency
-- Agencies with Coverage
-- Current Time
-- Trip for Vehicle
-- Trips for Route
-- Stops for Location
-- Routes for Location
-
 ## Tech Stack
 
 - **SvelteKit** - Modern web framework
