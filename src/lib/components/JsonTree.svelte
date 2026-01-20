@@ -36,8 +36,6 @@
 
 	let manualExpanded = $state<boolean | null>(null);
 
-	// Priority: localExpand > globalExpand > default
-	// Keep levels 0 and 1 expanded when globalExpand is false (to keep root structure visible)
 	const expanded = $derived(
 		manualExpanded !== null
 			? manualExpanded
@@ -70,7 +68,6 @@
 		manualExpanded = !expanded;
 	}
 
-	// For expanding/collapsing all children of this node
 	let childLocalExpand = $state<boolean | null>(null);
 
 	function expandAllChildren() {
@@ -78,12 +75,10 @@
 	}
 
 	function collapseAllChildren() {
-		// Collapse children AND this node itself
 		childLocalExpand = false;
 		manualExpanded = false;
 	}
 
-	// Reset child state when global changes
 	$effect(() => {
 		if (globalExpand !== null) {
 			childLocalExpand = null;
@@ -91,7 +86,6 @@
 		}
 	});
 
-	// Pass down the local expand state (prioritize child's local, then parent's)
 	const childExpand = $derived(childLocalExpand !== null ? childLocalExpand : localExpand);
 
 	function formatPrimitive(val: unknown): string {
