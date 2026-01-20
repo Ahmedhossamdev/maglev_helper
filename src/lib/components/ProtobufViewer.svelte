@@ -203,6 +203,7 @@
 									{#if activeTab === 'tripUpdates'}
 										{@const tripUpdate = item as Record<string, unknown>}
 										{@const trip = tripUpdate.trip as Record<string, string> | undefined}
+										{@const vehicleInfo = tripUpdate.vehicle as Record<string, string> | undefined}
 										<span class="font-mono text-sm">
 											{trip?.tripId || tripUpdate.id || 'Unknown Trip'}
 										</span>
@@ -211,6 +212,13 @@
 												class="rounded bg-green-100 px-2 py-0.5 text-xs text-green-700 dark:bg-green-900/50 dark:text-green-400"
 											>
 												Route: {trip.routeId}
+											</span>
+										{/if}
+										{#if vehicleInfo?.id || vehicleInfo?.label}
+											<span
+												class="rounded bg-orange-100 px-2 py-0.5 text-xs text-orange-700 dark:bg-orange-900/50 dark:text-orange-400"
+											>
+												🚐 {vehicleInfo?.id || vehicleInfo?.label}
 											</span>
 										{/if}
 									{:else if activeTab === 'vehiclePositions'}

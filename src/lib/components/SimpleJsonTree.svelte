@@ -76,41 +76,35 @@
 				<span class="ml-2 {getValueColorClass(value)}">{formatPrimitive(value)}</span>
 			{/if}
 		</div>
-	{/if}
 
-	{#if expanded && isObject(value)}
-		<div class="ml-4 border-l border-slate-200 pl-3 dark:border-slate-700">
-			{#each Object.entries(value) as [key, val] (key)}
-				<SimpleJsonTree value={val} level={level + 1} label={key} />
-			{/each}
-		</div>
-	{/if}
-
-	{#if expanded && isArray(value)}
-		<div class="ml-4 border-l border-slate-200 pl-3 dark:border-slate-700">
-			{#each value as item, index (index)}
-				<SimpleJsonTree value={item} level={level + 1} label={String(index)} />
-			{/each}
-		</div>
-	{/if}
-
-	{#if label === undefined && !isObject(value) && !isArray(value)}
-		<span class={getValueColorClass(value)}>{formatPrimitive(value)}</span>
-	{/if}
-
-	{#if label === undefined && (isObject(value) || isArray(value))}
-		{#if isObject(value)}
-			<div>
+		{#if expanded && isObject(value)}
+			<div class="ml-4 border-l border-slate-200 pl-3 dark:border-slate-700">
 				{#each Object.entries(value) as [key, val] (key)}
 					<SimpleJsonTree value={val} level={level + 1} label={key} />
 				{/each}
 			</div>
-		{:else if isArray(value)}
-			<div>
+		{/if}
+
+		{#if expanded && isArray(value)}
+			<div class="ml-4 border-l border-slate-200 pl-3 dark:border-slate-700">
 				{#each value as item, index (index)}
 					<SimpleJsonTree value={item} level={level + 1} label={String(index)} />
 				{/each}
 			</div>
 		{/if}
+	{:else if isObject(value)}
+		<div>
+			{#each Object.entries(value) as [key, val] (key)}
+				<SimpleJsonTree value={val} level={level + 1} label={key} />
+			{/each}
+		</div>
+	{:else if isArray(value)}
+		<div>
+			{#each value as item, index (index)}
+				<SimpleJsonTree value={item} level={level + 1} label={String(index)} />
+			{/each}
+		</div>
+	{:else}
+		<span class={getValueColorClass(value)}>{formatPrimitive(value)}</span>
 	{/if}
 </div>
