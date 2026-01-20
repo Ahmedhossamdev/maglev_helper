@@ -7,11 +7,26 @@
 		alerts: unknown[];
 		header: unknown;
 		entityCount: number;
+		rawTextTripUpdates: string;
+		rawTextVehiclePositions: string;
+		rawTextAlerts: string;
 	}
 
-	let { tripUpdates, vehiclePositions, alerts, header, entityCount }: Props = $props();
+	let {
+		tripUpdates,
+		vehiclePositions,
+		alerts,
+		header,
+		entityCount,
+		rawTextTripUpdates,
+		rawTextVehiclePositions,
+		rawTextAlerts
+	}: Props = $props();
 
-	let activeTab = $state<'tripUpdates' | 'vehiclePositions' | 'alerts' | 'header'>('tripUpdates');
+	let activeTab = $state<'tripUpdates' | 'vehiclePositions' | 'alerts' | 'header' | 'rawText'>(
+		'tripUpdates'
+	);
+	let activeRawTextTab = $state<'tripUpdates' | 'vehiclePositions' | 'alerts'>('tripUpdates');
 
 	const tabs = $derived([
 		{ id: 'tripUpdates' as const, label: 'Trip Updates', icon: '🚌', count: tripUpdates.length },
@@ -22,8 +37,38 @@
 			count: vehiclePositions.length
 		},
 		{ id: 'alerts' as const, label: 'Alerts', icon: '⚠️', count: alerts.length },
-		{ id: 'header' as const, label: 'Header', icon: '📋', count: null }
+		{ id: 'header' as const, label: 'Header', icon: '📋', count: null },
+		{ id: 'rawText' as const, label: 'Raw Text', icon: '📄', count: null }
 	]);
+
+	const rawTextTabs = $derived([
+		{
+			id: 'tripUpdates' as const,
+			label: 'Trip Updates',
+			icon: '🚌',
+			hasContent: rawTextTripUpdates.length > 0
+		},
+		{
+			id: 'vehiclePositions' as const,
+			label: 'Vehicle Positions',
+			icon: '📍',
+			hasContent: rawTextVehiclePositions.length > 0
+		},
+		{ id: 'alerts' as const, label: 'Alerts', icon: '⚠️', hasContent: rawTextAlerts.length > 0 }
+	]);
+
+	const currentRawText = $derived(() => {
+		switch (activeRawTextTab) {
+			case 'tripUpdates':
+				return rawTextTripUpdates;
+			case 'vehiclePositions':
+				return rawTextVehiclePositions;
+			case 'alerts':
+				return rawTextAlerts;
+			default:
+				return '';
+		}
+	});
 
 	const activeData = $derived(() => {
 		switch (activeTab) {
@@ -74,7 +119,56 @@
 	</div>
 
 	<div class="max-h-[600px] overflow-auto p-4">
-		{#if activeTab === 'header'}
+		{#if activeTab === 'rawText'}
+			<div class="flex flex-col gap-3">
+				<!-- Feed type selector tabs -->
+				<div
+					class="flex flex-wrap items-center gap-2 rounded-lg bg-slate-100 p-2 dark:bg-slate-700"
+				>
+					<span class="text-xs font-medium text-slate-500 dark:text-slate-400">View:</span>
+					{#each rawTextTabs as tab (tab.id)}
+						{#if tab.hasContent}
+							<button
+								onclick={() => (activeRawTextTab = tab.id)}
+								class="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium shadow-sm transition-colors {activeRawTextTab ===
+								tab.id
+									? 'bg-blue-500 text-white dark:bg-blue-600'
+									: 'bg-white text-slate-700 hover:bg-blue-50 hover:text-blue-700 dark:bg-slate-600 dark:text-slate-200 dark:hover:bg-blue-900/30 dark:hover:text-blue-400'}"
+							>
+								<span>{tab.icon}</span>
+								<span>{tab.label}</span>
+							</button>
+						{/if}
+					{/each}
+				</div>
+
+				<div class="relative">
+					<button
+						onclick={() => navigator.clipboard.writeText(currentRawText())}
+						class="absolute top-2 right-2 z-10 rounded-lg bg-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-300 dark:bg-slate-600 dark:text-slate-300 dark:hover:bg-slate-500"
+					>
+						📋 Copy
+					</button>
+					{#if currentRawText()}
+						<pre
+							class="max-h-[500px] overflow-auto rounded-lg bg-slate-50 p-4 pr-20 font-mono text-xs leading-relaxed break-words whitespace-pre-wrap text-slate-700 dark:bg-slate-900 dark:text-slate-300">{currentRawText()}</pre>
+					{:else}
+						<div
+							class="flex flex-col items-center justify-center rounded-lg bg-slate-50 py-12 text-center dark:bg-slate-900"
+						>
+							<div
+								class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-2xl dark:bg-slate-700"
+							>
+								📄
+							</div>
+							<p class="text-slate-500 dark:text-slate-400">
+								No raw text available for this feed type
+							</p>
+						</div>
+					{/if}
+				</div>
+			</div>
+		{:else if activeTab === 'header'}
 			<SimpleJsonTree value={activeData()} />
 		{:else}
 			{@const items = activeData() as unknown[]}

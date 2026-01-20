@@ -37,10 +37,35 @@ export const POST: RequestHandler = async ({ request }) => {
 			longs: String,
 			enums: String,
 			bytes: String,
-			defaults: true,
+			defaults: false,
 			arrays: true,
-			objects: true
+			objects: false,
+			oneofs: true
 		});
+
+		const generatePlainText = (obj: unknown, indent = 0): string => {
+			const spaces = '  '.repeat(indent);
+			if (obj === null || obj === undefined) return `${spaces}null`;
+			if (typeof obj !== 'object') return `${spaces}${obj}`;
+			if (Array.isArray(obj)) {
+				if (obj.length === 0) return `${spaces}[]`;
+				return obj
+					.map((item, i) => `${spaces}[${i}]:\n${generatePlainText(item, indent + 1)}`)
+					.join('\n');
+			}
+			const entries = Object.entries(obj as Record<string, unknown>);
+			if (entries.length === 0) return `${spaces}{}`;
+			return entries
+				.map(([key, val]) => {
+					if (typeof val === 'object' && val !== null) {
+						return `${spaces}${key}:\n${generatePlainText(val, indent + 1)}`;
+					}
+					return `${spaces}${key}: ${val}`;
+				})
+				.join('\n');
+		};
+
+		const rawText = generatePlainText(feedObject);
 
 		const tripUpdates: unknown[] = [];
 		const vehiclePositions: unknown[] = [];
@@ -75,7 +100,8 @@ export const POST: RequestHandler = async ({ request }) => {
 			vehiclePositions,
 			alerts,
 			entityCount: feedObject.entity?.length || 0,
-			raw: feedObject
+			raw: feedObject,
+			rawText
 		});
 	} catch (error) {
 		console.error('Protobuf decode error:', error);

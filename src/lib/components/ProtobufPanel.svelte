@@ -18,6 +18,9 @@
 		vehiclePositions: unknown[];
 		alerts: unknown[];
 		entityCount: number;
+		rawTextTripUpdates: string;
+		rawTextVehiclePositions: string;
+		rawTextAlerts: string;
 	} | null>(null);
 
 	let autoRefresh = $state(false);
@@ -167,12 +170,20 @@
 
 			const header = tripData?.header || vehicleData?.header || alertData?.header;
 
+			// Get raw text for each feed type separately
+			const rawTextTripUpdates = (tripData as { rawText?: string })?.rawText || '';
+			const rawTextVehiclePositions = (vehicleData as { rawText?: string })?.rawText || '';
+			const rawTextAlerts = (alertData as { rawText?: string })?.rawText || '';
+
 			feedData = {
 				header,
 				tripUpdates: allTripUpdates,
 				vehiclePositions: allVehiclePositions,
 				alerts: allAlerts,
-				entityCount: allTripUpdates.length + allVehiclePositions.length + allAlerts.length
+				entityCount: allTripUpdates.length + allVehiclePositions.length + allAlerts.length,
+				rawTextTripUpdates,
+				rawTextVehiclePositions,
+				rawTextAlerts
 			};
 
 			if (errors.length > 0) {
@@ -192,7 +203,6 @@
 	class="mb-6 rounded-xl border border-slate-200 bg-white shadow-sm transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800"
 >
 	<div class="space-y-6 p-6">
-		<!-- Feed URLs -->
 		<div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
 			<div>
 				<label
@@ -381,6 +391,9 @@
 		alerts={feedData.alerts}
 		header={feedData.header}
 		entityCount={feedData.entityCount}
+		rawTextTripUpdates={feedData.rawTextTripUpdates}
+		rawTextVehiclePositions={feedData.rawTextVehiclePositions}
+		rawTextAlerts={feedData.rawTextAlerts}
 	/>
 {:else if !loading}
 	<div
